@@ -1,0 +1,35 @@
+{
+  "source_project": "https://github.com/PedroFlores199/TurismoLakehouse",
+  "source_commit": "c6387c1942e8e2822e2d0104666983101e393b3f",
+  "attribution": "Elaboración propia con datos extraídos del sitio web del INE, www.ine.es.",
+  "files": [
+    {
+      "file": "fact_housing.csv",
+      "sha256": "343b6f5dbc6397a21a6875869697e7d8631ee4a3f48a9638bf5847ddd0f679f4"
+    },
+    {
+      "file": "fact_forecast.csv",
+      "sha256": "ad656b1464d38e8b33cfbcc0104b856afd8c69e5887017ee1aaf6461a81570a0"
+    },
+    {
+      "file": "fact_hotel.csv",
+      "sha256": "b3bc200607c9e4e55719b65cda7ab94f6c10b8ab481008f3a81b32b65a52029f"
+    },
+    {
+      "file": "fact_region_monthly.csv",
+      "sha256": "cb9420cf7615068d452a72ab460ebfe0b7ad77e8fb51137c763839d2d09db283"
+    },
+    {
+      "file": "dim_date.csv",
+      "sha256": "0c739861aff565d36bca8e575688369ef4ee77dad8af8c35017c0cf46e91063e"
+    },
+    {
+      "file": "dim_province.csv",
+      "sha256": "da4bf43ff4b99a353df11e34b5c95f0d8df69a0f64e392fc9e47aa8d303c190b"
+    },
+    {
+      "file": "fact_markets_annual.csv",
+      "sha256": "5efb4d1a1bbc636cf09756a8082b36b699506f05e3873d6fd021c6a9bc1abf00"
+    }
+  ]
+}

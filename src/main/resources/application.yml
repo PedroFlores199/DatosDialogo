@@ -1,0 +1,46 @@
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: ${PORT:5104}
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        http-only: true
+        same-site: strict
+spring:
+  datasource:
+    url: ${RAG_DB_URL:jdbc:postgresql://localhost:55434/dialogo}
+    username: ${RAG_DB_USER:rag_writer}
+    password: ${RAG_DB_PASSWORD:local-rag-demo}
+    hikari:
+      maximum-pool-size: 3
+  ai:
+    ollama:
+      base-url: ${OLLAMA_URL:http://localhost:11435}
+      chat:
+        options:
+          model: ${CHAT_MODEL:qwen3:4b-instruct-2507-q4_K_M}
+      embedding:
+        options:
+          model: nomic-embed-text
+    retry:
+      max-attempts: 1
+app:
+  context-size: ${CONTEXT_SIZE:8192}
+  cpu-threads: ${MODEL_CPU_THREADS:4}
+  model: ${CHAT_MODEL:qwen3:4b-instruct-2507-q4_K_M}
+  reader-url: ${READER_DB_URL:jdbc:postgresql://localhost:55434/dialogo}
+  reader-user: ${READER_DB_USER:analytics_reader}
+  reader-password: ${READER_DB_PASSWORD:local-reader-demo}
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+logging:
+  level:
+    org.springframework.ai: WARN

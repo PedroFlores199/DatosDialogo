@@ -1,0 +1,8 @@
+services:
+  app:
+    environment:
+      OLLAMA_URL: http://host.docker.internal:11435
+      CONTEXT_SIZE: 8192
+    depends_on: !override
+      postgres:
+        condition: service_healthy

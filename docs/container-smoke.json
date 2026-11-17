@@ -1,0 +1,45 @@
+{
+  "environment": "Docker application and Ollama 0.13.0, CPU only, existing read-only model cache",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "context_size": 6144,
+  "cpu_threads": 4,
+  "ollama_memory_limit": "5 GiB",
+  "seconds": 156.324,
+  "answer": {
+    "status": "ok",
+    "message": "Consulta completada: 1 fila.",
+    "result": {
+      "id": "27d83543-2d17-4854-98ac-150dfccebd7b",
+      "sql": "SELECT SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Almería' AND year = 2025",
+      "columns": [
+        "total_nights"
+      ],
+      "rows": [
+        {
+          "total_nights": 5303084.0
+        }
+      ],
+      "truncated": false,
+      "milliseconds": 150.076208
+    },
+    "chart": null,
+    "sources": [
+      "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+      "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+      "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+      "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+    ],
+    "steps": [
+      "Recuperación de esquema en pgvector",
+      "Esquema: fact_hotel",
+      "Consulta de solo lectura"
+    ],
+    "attempts": 1,
+    "seconds": 154.474989278
+  },
+  "export_bytes": {
+    "pdf": 13186,
+    "xlsx": 4422
+  },
+  "unsupported_provincial_spend_refused": true
+}

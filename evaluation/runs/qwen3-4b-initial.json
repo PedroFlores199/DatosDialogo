@@ -1,0 +1,1624 @@
+{
+  "complete": true,
+  "at": "2026-11-17T02:07:23.793241+00:00",
+  "model": "qwen3:4b-instruct-2507-q4_K_M",
+  "environment": "Local Ollama / Metal / Mac M2 Max; Java 21 / Spring AI 1.1.8 / PostgreSQL 17",
+  "total": 40,
+  "passed": 23,
+  "sql_cases": 35,
+  "sql_execution_accuracy": 0.5142857142857142,
+  "refusal_cases": 5,
+  "correct_refusals": 5,
+  "median_seconds": 2.396,
+  "comparator": "Ordered result rows; aliases ignored; dates normalized to ISO date; numerical absolute tolerance 0.011 and relative tolerance 1e-9. Refusals scored separately. No judge model.",
+  "results": [
+    {
+      "id": "q01",
+      "question": "¿Cuántas pernoctaciones hoteleras hubo en Almería en 2025?",
+      "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2025",
+      "conversation": "almeria",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Almería' AND year = 2025",
+      "expected_rows": [
+        [
+          5303084.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          5303084.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 7.399
+    },
+    {
+      "id": "q02",
+      "question": "¿Y en 2024?",
+      "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2024",
+      "conversation": "almeria",
+      "end_conversation": true,
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Almería' AND year = 2024",
+      "expected_rows": [
+        [
+          5137903.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          5137903.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.577
+    },
+    {
+      "id": "q03",
+      "question": "¿Cuántos viajeros se alojaron en hoteles de Andalucía en 2025?",
+      "reference_sql": "SELECT SUM(travelers_total) FROM fact_hotel WHERE year=2025",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(travelers_total) AS total_travelers FROM fact_hotel WHERE province = 'Andalucía' AND year = 2025",
+      "expected_rows": [
+        [
+          20334167.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          null
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.688
+    },
+    {
+      "id": "q04",
+      "question": "Total de pernoctaciones hoteleras en Cádiz en 2024.",
+      "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Cádiz' AND year=2024",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Cádiz' AND year = 2024",
+      "expected_rows": [
+        [
+          8451672.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          8451672.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.327
+    },
+    {
+      "id": "q05",
+      "question": "¿Cuántos viajeros residentes en España recibió Sevilla en sus hoteles en 2025?",
+      "reference_sql": "SELECT SUM(travelers_domestic) FROM fact_hotel WHERE province='Sevilla' AND year=2025",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(travelers_total) AS total_travelers FROM fact_hotel WHERE province = 'Sevilla' AND year = 2025",
+      "expected_rows": [
+        [
+          1642173.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          3821855.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.14
+    },
+    {
+      "id": "q06",
+      "question": "¿Cuántas pernoctaciones de residentes en el extranjero hubo en hoteles de Málaga en 2023?",
+      "reference_sql": "SELECT SUM(nights_foreign) FROM fact_hotel WHERE province='Málaga' AND year=2023",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(nights_foreign) AS total_nights_foreign FROM fact_hotel WHERE province = 'Málaga' AND year = 2023",
+      "expected_rows": [
+        [
+          15623198.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          15623198.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.941
+    },
+    {
+      "id": "q07",
+      "question": "Número estimado de hoteles abiertos en Córdoba en junio de 2025.",
+      "reference_sql": "SELECT hotels FROM fact_hotel WHERE province='Córdoba' AND period_start='2025-06-01'",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT hotels AS \"number_of_hotels\" FROM fact_hotel WHERE province = 'Córdoba' AND period_start = '2025-06-01'",
+      "expected_rows": [
+        [
+          171.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          171.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 3.124
+    },
+    {
+      "id": "q08",
+      "question": "Ordena las provincias por pernoctaciones hoteleras totales de 2025, de mayor a menor.",
+      "reference_sql": "SELECT province,SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY SUM(nights_total) DESC",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT province, SUM(nights_total) AS total_nights FROM fact_hotel WHERE year = 2025 GROUP BY province ORDER BY total_nights DESC",
+      "expected_rows": [
+        [
+          "Málaga",
+          22208487.0
+        ],
+        [
+          "Cádiz",
+          8708082.0
+        ],
+        [
+          "Sevilla",
+          7836533.0
+        ],
+        [
+          "Granada",
+          6063112.0
+        ],
+        [
+          "Almería",
+          5303084.0
+        ],
+        [
+          "Huelva",
+          3949509.0
+        ],
+        [
+          "Córdoba",
+          1992602.0
+        ],
+        [
+          "Jaén",
+          1065851.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          "Málaga",
+          22208487.0
+        ],
+        [
+          "Cádiz",
+          8708082.0
+        ],
+        [
+          "Sevilla",
+          7836533.0
+        ],
+        [
+          "Granada",
+          6063112.0
+        ],
+        [
+          "Almería",
+          5303084.0
+        ],
+        [
+          "Huelva",
+          3949509.0
+        ],
+        [
+          "Córdoba",
+          1992602.0
+        ],
+        [
+          "Jaén",
+          1065851.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.956
+    },
+    {
+      "id": "q09",
+      "question": "Ranking de provincias por viajeros alojados en 2024, de mayor a menor.",
+      "reference_sql": "SELECT province,SUM(travelers_total) FROM fact_hotel WHERE year=2024 GROUP BY province ORDER BY SUM(travelers_total) DESC",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT province, SUM(nights_total) / SUM(travelers_total) AS mean_stay FROM fact_hotel WHERE year = 2024 GROUP BY province ORDER BY mean_stay DESC",
+      "expected_rows": [
+        [
+          "Málaga",
+          6300504.0
+        ],
+        [
+          "Sevilla",
+          3924011.0
+        ],
+        [
+          "Granada",
+          2854062.0
+        ],
+        [
+          "Cádiz",
+          2853147.0
+        ],
+        [
+          "Almería",
+          1478392.0
+        ],
+        [
+          "Córdoba",
+          1155267.0
+        ],
+        [
+          "Huelva",
+          1138150.0
+        ],
+        [
+          "Jaén",
+          587959.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          "Huelva",
+          3.5323656811492334
+        ],
+        [
+          "Málaga",
+          3.4996025714768217
+        ],
+        [
+          "Almería",
+          3.4753319823159217
+        ],
+        [
+          "Cádiz",
+          2.9622280240029695
+        ],
+        [
+          "Granada",
+          2.0852213441754244
+        ],
+        [
+          "Sevilla",
+          2.0227616589250133
+        ],
+        [
+          "Jaén",
+          1.7955656771985802
+        ],
+        [
+          "Córdoba",
+          1.7310154276024503
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 5.155
+    },
+    {
+      "id": "q10",
+      "question": "Muestra el número de mes y las pernoctaciones de Almería de 2025, en orden de mes.",
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2025 GROUP BY period_start ORDER BY period_start",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT EXTRACT(MONTH FROM period_start) AS month, SUM(nights_total) AS nights_total FROM fact_hotel WHERE province = 'Almería' AND year = 2 - 2025 GROUP BY EXTRACT(MONTH FROM period_start) ORDER BY month",
+      "expected_rows": [
+        [
+          "1",
+          90711.0
+        ],
+        [
+          "2",
+          186261.0
+        ],
+        [
+          "3",
+          246639.0
+        ],
+        [
+          "4",
+          389483.0
+        ],
+        [
+          "5",
+          487673.0
+        ],
+        [
+          "6",
+          689293.0
+        ],
+        [
+          "7",
+          931239.0
+        ],
+        [
+          "8",
+          1033988.0
+        ],
+        [
+          "9",
+          687707.0
+        ],
+        [
+          "10",
+          317636.0
+        ],
+        [
+          "11",
+          128638.0
+        ],
+        [
+          "12",
+          113816.0
+        ]
+      ],
+      "actual_rows": [],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 6.39
+    },
+    {
+      "id": "q11",
+      "question": "Muestra el número de mes y las pernoctaciones de toda Andalucía en 2025, en orden de mes.",
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY period_start ORDER BY period_start",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT EXTRACT(MONTH FROM period_start) AS month, SUM(spend_eur) AS total_nights FROM fact_region_monthly WHERE region = 'Andalucía' AND year = 2025 GROUP BY EXTRACT(MONTH FROM period_start) ORDER BY month",
+      "expected_rows": [
+        [
+          "1",
+          2298452.0
+        ],
+        [
+          "2",
+          2887855.0
+        ],
+        [
+          "3",
+          3689957.0
+        ],
+        [
+          "4",
+          5013181.0
+        ],
+        [
+          "5",
+          5608741.0
+        ],
+        [
+          "6",
+          5989207.0
+        ],
+        [
+          "7",
+          6852207.0
+        ],
+        [
+          "8",
+          7566847.0
+        ],
+        [
+          "9",
+          6174903.0
+        ],
+        [
+          "10",
+          5246920.0
+        ],
+        [
+          "11",
+          3133978.0
+        ],
+        [
+          "12",
+          2665012.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          1,
+          990450000.0
+        ],
+        [
+          2,
+          1035160000.0000001
+        ],
+        [
+          3,
+          1588940000.0
+        ],
+        [
+          4,
+          1731920000.0
+        ],
+        [
+          5,
+          1896060000.0
+        ],
+        [
+          6,
+          1915270000.0
+        ],
+        [
+          7,
+          2180010000.0
+        ],
+        [
+          8,
+          2353560000.0
+        ],
+        [
+          9,
+          2019960000.0
+        ],
+        [
+          10,
+          2029290000.0
+        ],
+        [
+          11,
+          1175760000.0
+        ],
+        [
+          12,
+          1116430000.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_region_monthly",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 5.461
+    },
+    {
+      "id": "q12",
+      "question": "¿Qué mes de 2025 tuvo más pernoctaciones hoteleras en Málaga? Devuelve número de mes y pernoctaciones.",
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),nights_total FROM fact_hotel WHERE province='Málaga' AND year=2025 ORDER BY nights_total DESC LIMIT 1",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT EXTRACT(MONTH FROM period_start) AS month, SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Málaga' AND year = 2025 GROUP BY EXTRACT(MONTH FROM period_start) ORDER BY total_nights DESC",
+      "expected_rows": [
+        [
+          "8",
+          2860300.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          8,
+          2860300.0
+        ],
+        [
+          7,
+          2599633.0
+        ],
+        [
+          9,
+          2348315.0
+        ],
+        [
+          6,
+          2290826.0
+        ],
+        [
+          10,
+          2258458.0
+        ],
+        [
+          5,
+          2197166.0
+        ],
+        [
+          4,
+          2007376.0
+        ],
+        [
+          3,
+          1494020.0
+        ],
+        [
+          11,
+          1240818.0
+        ],
+        [
+          2,
+          1125857.0
+        ],
+        [
+          12,
+          939435.0
+        ],
+        [
+          1,
+          846283.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 5.37
+    },
+    {
+      "id": "q13",
+      "question": "¿Qué provincia tuvo menos pernoctaciones hoteleras en 2025? Devuelve provincia y total.",
+      "reference_sql": "SELECT province,SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY SUM(nights_total) LIMIT 1",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT province, SUM(nights_total) AS total_nights FROM fact_hotel WHERE year = 2025 GROUP BY province ORDER BY total_nights ASC LIMIT 1",
+      "expected_rows": [
+        [
+          "Jaén",
+          1065851.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          "Jaén",
+          1065851.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 3.447
+    },
+    {
+      "id": "q14",
+      "question": "Total de pernoctaciones hoteleras de residentes extranjeros en Andalucía en 2025.",
+      "reference_sql": "SELECT SUM(nights_foreign) FROM fact_hotel WHERE year=2025",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(nights_foreign) AS total_nights_foreign FROM fact_hotel WHERE province = 'Andalucía' AND year = 2025",
+      "expected_rows": [
+        [
+          31721592.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          null
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 3.876
+    },
+    {
+      "id": "q15",
+      "question": "¿Qué porcentaje de los viajeros hoteleros de Cádiz en 2024 residía en el extranjero?",
+      "reference_sql": "SELECT 100.0*SUM(travelers_foreign)/SUM(travelers_total) FROM fact_hotel WHERE province='Cádiz' AND year=2024",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT (travelers_foreign * 100.0 / travelers_total) AS percentage_foreign FROM fact_hotel WHERE province = 'Cádiz' AND year = 2024 AND period_start >= '2024-01-01' AND period_start < '2025-01-01'",
+      "expected_rows": [
+        [
+          32.33163240449931
+        ]
+      ],
+      "actual_rows": [
+        [
+          34.44418239799842
+        ],
+        [
+          32.45046048776253
+        ],
+        [
+          32.75439683000751
+        ],
+        [
+          38.37397337751826
+        ],
+        [
+          34.76908919769886
+        ],
+        [
+          29.37254853590547
+        ],
+        [
+          25.645610897806765
+        ],
+        [
+          24.558026705947096
+        ],
+        [
+          35.78870484059873
+        ],
+        [
+          43.322151466909254
+        ],
+        [
+          34.60884413742494
+        ],
+        [
+          27.006248189680143
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 4.331
+    },
+    {
+      "id": "q16",
+      "question": "Estancia media agregada en hoteles de Almería durante 2025, en noches por viajero.",
+      "reference_sql": "SELECT SUM(nights_total)/SUM(travelers_total) FROM fact_hotel WHERE province='Almería' AND year=2025",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(nights_total) * 1.0 / SUM(travelers_total) AS mean_stay_nights_per_traveler FROM fact_hotel WHERE province = 'Almería' AND year = 2025",
+      "expected_rows": [
+        [
+          3.3928902065836253
+        ]
+      ],
+      "actual_rows": [
+        [
+          3.3928902065836253
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.722
+    },
+    {
+      "id": "q17",
+      "question": "Ocupación hotelera media de Andalucía de 2025, en porcentaje, ponderada por plazas y días de cada mes.",
+      "reference_sql": "SELECT SUM(occupancy_pct*(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))))/SUM(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))) FROM fact_hotel WHERE year=2025",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT AVG(occupancy_pct) AS average_occupancy_percentage FROM fact_hotel WHERE province = 'Andalucia' AND year = 2025",
+      "expected_rows": [
+        [
+          56.690647734135126
+        ]
+      ],
+      "actual_rows": [
+        [
+          null
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_region_monthly",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 3.276
+    },
+    {
+      "id": "q18",
+      "question": "Ocupación hotelera de Málaga de 2025, en porcentaje, ponderada por plazas y días de cada mes.",
+      "reference_sql": "SELECT SUM(occupancy_pct*(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))))/SUM(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))) FROM fact_hotel WHERE province='Málaga' AND year=2025",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT occupancy_pct FROM fact_hotel WHERE province = 'Málaga' AND year = 2025",
+      "expected_rows": [
+        [
+          62.75189438895605
+        ]
+      ],
+      "actual_rows": [
+        [
+          41.82
+        ],
+        [
+          51.73
+        ],
+        [
+          52.75
+        ],
+        [
+          63.36
+        ],
+        [
+          65.82
+        ],
+        [
+          69.58
+        ],
+        [
+          73.21
+        ],
+        [
+          79.6
+        ],
+        [
+          69.8
+        ],
+        [
+          67.02
+        ],
+        [
+          50.72
+        ],
+        [
+          43.79
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.03
+    },
+    {
+      "id": "q19",
+      "question": "Pernoctaciones hoteleras de Almería por año, desde 2022 hasta 2025, ordenadas por año.",
+      "reference_sql": "SELECT year,SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year BETWEEN 2022 AND 2025 GROUP BY year ORDER BY year",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT year, SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Almería' AND year BETWEEN 2022 AND 2025 GROUP BY year ORDER BY year",
+      "expected_rows": [
+        [
+          2022,
+          4677243.0
+        ],
+        [
+          2023,
+          4900931.0
+        ],
+        [
+          2024,
+          5137903.0
+        ],
+        [
+          2025,
+          5303084.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          2022,
+          4677243.0
+        ],
+        [
+          2023,
+          4900931.0
+        ],
+        [
+          2024,
+          5137903.0
+        ],
+        [
+          2025,
+          5303084.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.204
+    },
+    {
+      "id": "q20",
+      "question": "Porcentaje de variación de las pernoctaciones hoteleras totales de Almería entre 2024 y 2025.",
+      "reference_sql": "SELECT 100.0*(SUM(CASE WHEN year=2025 THEN nights_total ELSE 0 END)/SUM(CASE WHEN year=2024 THEN nights_total ELSE 0 END)-1) FROM fact_hotel WHERE province='Almería' AND year IN(2024,2025)",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(nights_total) AS total_nights_2024, SUM(nights_total) AS total_nights_2025 FROM fact_hotel WHERE province = 'Almería' AND year = 2024 AND period_start >= '2024-10-01' AND period_start < '2025-01-01' UNION ALL SELECT SUM(nights_total) AS total_nights_2024, SUM(nights_total) AS total_nights_2025 FROM fact_hotel WHERE province = 'Almería' AND year = 2025 AND period_start >= '2025-10-01' AND period_start < '2026-01-01'",
+      "expected_rows": [
+        [
+          3.2149497567392826
+        ]
+      ],
+      "actual_rows": [
+        [
+          558792.0,
+          558792.0
+        ],
+        [
+          560090.0,
+          560090.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 3.427
+    },
+    {
+      "id": "q21",
+      "question": "¿Cuánto gastaron en total los turistas de Reino Unido en Andalucía en 2025?",
+      "reference_sql": "SELECT spend_eur FROM fact_markets_annual WHERE country='Reino Unido' AND year=2025",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT spend_eur FROM fact_markets_annual WHERE region = 'Andalucía' AND country = 'Reino Unido' AND year = 2025",
+      "expected_rows": [
+        [
+          3708930000.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          3708930000.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_markets_annual",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.369
+    },
+    {
+      "id": "q22",
+      "question": "Ordena los países de origen por gasto total en Andalucía de 2025, excluyendo la fila Total.",
+      "reference_sql": "SELECT country,spend_eur FROM fact_markets_annual WHERE year=2025 AND country<>'Total' ORDER BY spend_eur DESC",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT country, spend_eur FROM fact_markets_annual WHERE region = 'Andalucia' AND year = 2025 AND country != 'Total' ORDER BY spend_eur DESC",
+      "expected_rows": [
+        [
+          "Reino Unido",
+          3708930000.0
+        ],
+        [
+          "Países Nórdicos",
+          2171750000.0
+        ],
+        [
+          "Alemania",
+          1685700000.0
+        ],
+        [
+          "Francia",
+          1431700000.0
+        ],
+        [
+          "Italia",
+          649220000.0
+        ]
+      ],
+      "actual_rows": [],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_markets_annual",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 3.03
+    },
+    {
+      "id": "q23",
+      "question": "Gasto turístico internacional total anual de Andalucía en 2024 según la fila Total de mercados.",
+      "reference_sql": "SELECT spend_eur FROM fact_markets_annual WHERE year=2024 AND country='Total'",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT spend_eur AS gasto_total_anual_eur FROM fact_markets_annual WHERE region = 'Andalucía' AND country = 'Total' AND year = 2024",
+      "expected_rows": [
+        [
+          18460330000.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          18460330000.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_markets_annual",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 1.748
+    },
+    {
+      "id": "q24",
+      "question": "Suma del gasto turístico internacional mensual de Andalucía durante 2025.",
+      "reference_sql": "SELECT SUM(spend_eur) FROM fact_region_monthly WHERE year=2025",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(spend_eur) AS total_spend_eur FROM fact_region_monthly WHERE region = 'Andalucia' AND year = 2025",
+      "expected_rows": [
+        [
+          20032810000.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          null
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_region_monthly",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 1.73
+    },
+    {
+      "id": "q25",
+      "question": "¿Cuántos turistas internacionales recibió Andalucía en 2025 según FRONTUR?",
+      "reference_sql": "SELECT SUM(international_tourists) FROM fact_region_monthly WHERE year=2025",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(international_tourists) AS total_international_tourists FROM fact_region_monthly WHERE region = 'Andalucia' AND year = 2025",
+      "expected_rows": [
+        [
+          14432411.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          null
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_region_monthly",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 1.755
+    },
+    {
+      "id": "q26",
+      "question": "Gasto internacional de Andalucía por número de mes en 2025, ordenado por mes.",
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),spend_eur FROM fact_region_monthly WHERE year=2025 ORDER BY period_start",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "error",
+      "actual_sql": null,
+      "expected_rows": [
+        [
+          "1",
+          990450000.0
+        ],
+        [
+          "2",
+          1035160000.0000001
+        ],
+        [
+          "3",
+          1588940000.0
+        ],
+        [
+          "4",
+          1731920000.0
+        ],
+        [
+          "5",
+          1896060000.0
+        ],
+        [
+          "6",
+          1915270000.0
+        ],
+        [
+          "7",
+          2180010000.0
+        ],
+        [
+          "8",
+          2353560000.0
+        ],
+        [
+          "9",
+          2019960000.0
+        ],
+        [
+          "10",
+          2029290000.0
+        ],
+        [
+          "11",
+          1175760000.0
+        ],
+        [
+          "12",
+          1116430000.0
+        ]
+      ],
+      "actual_rows": [],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_markets_annual",
+        "Consulta de solo lectura",
+        "Esquema: fact_region_monthly"
+      ],
+      "seconds": 5.727
+    },
+    {
+      "id": "q27",
+      "question": "Gasto medio por persona de los turistas de Reino Unido en Andalucía durante 2025.",
+      "reference_sql": "SELECT spend_per_person_eur FROM fact_markets_annual WHERE country='Reino Unido' AND year=2025",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT spend_per_person_eur FROM fact_markets_annual WHERE region = 'Andalucía' AND country = 'Reino Unido' AND year = 2025",
+      "expected_rows": [
+        [
+          1197.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          1197.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_markets_annual",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.183
+    },
+    {
+      "id": "q28",
+      "question": "Número de viviendas turísticas de Almería en la última observación disponible de 2025.",
+      "reference_sql": "SELECT homes FROM fact_housing WHERE province='Almería' AND year=2025 ORDER BY period_start DESC LIMIT 1",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT homes FROM fact_housing WHERE province = 'Almería' AND year = 2025 ORDER BY period_start DESC LIMIT 1",
+      "expected_rows": [
+        [
+          6368.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          6368.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_housing",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.234
+    },
+    {
+      "id": "q29",
+      "question": "Viviendas turísticas de cada provincia en la última captura de 2025, ordenadas de mayor a menor.",
+      "reference_sql": "SELECT province,homes FROM fact_housing WHERE period_start=(SELECT MAX(period_start) FROM fact_housing WHERE year=2025) ORDER BY homes DESC",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT province, homes FROM fact_housing WHERE year = 2025 ORDER BY homes DESC",
+      "expected_rows": [
+        [
+          "Málaga",
+          48261.0
+        ],
+        [
+          "Cádiz",
+          14751.0
+        ],
+        [
+          "Sevilla",
+          8481.0
+        ],
+        [
+          "Granada",
+          7537.0
+        ],
+        [
+          "Almería",
+          6368.0
+        ],
+        [
+          "Córdoba",
+          2831.0
+        ],
+        [
+          "Huelva",
+          2439.0
+        ],
+        [
+          "Jaén",
+          1089.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          "Málaga",
+          48412.0
+        ],
+        [
+          "Málaga",
+          48261.0
+        ],
+        [
+          "Cádiz",
+          16624.0
+        ],
+        [
+          "Cádiz",
+          14751.0
+        ],
+        [
+          "Sevilla",
+          8719.0
+        ],
+        [
+          "Sevilla",
+          8481.0
+        ],
+        [
+          "Granada",
+          8305.0
+        ],
+        [
+          "Granada",
+          7537.0
+        ],
+        [
+          "Almería",
+          7266.0
+        ],
+        [
+          "Almería",
+          6368.0
+        ],
+        [
+          "Córdoba",
+          2972.0
+        ],
+        [
+          "Córdoba",
+          2831.0
+        ],
+        [
+          "Huelva",
+          2742.0
+        ],
+        [
+          "Huelva",
+          2439.0
+        ],
+        [
+          "Jaén",
+          1136.0
+        ],
+        [
+          "Jaén",
+          1089.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_housing",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.076
+    },
+    {
+      "id": "q30",
+      "question": "Número de viviendas turísticas de Cádiz en la última observación disponible de 2024.",
+      "reference_sql": "SELECT homes FROM fact_housing WHERE province='Cádiz' AND year=2024 ORDER BY period_start DESC LIMIT 1",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT homes FROM fact_housing WHERE province = 'Cádiz' AND year = 2024 ORDER BY period_start DESC LIMIT 1",
+      "expected_rows": [
+        [
+          15230.0
+        ]
+      ],
+      "actual_rows": [
+        [
+          15230.0
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_housing",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.28
+    },
+    {
+      "id": "q31",
+      "question": "Total de plazas en viviendas turísticas de Andalucía en la última captura de 2025.",
+      "reference_sql": "SELECT SUM(beds) FROM fact_housing WHERE period_start=(SELECT MAX(period_start) FROM fact_housing WHERE year=2025)",
+      "passed": false,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(homes) AS total_homes FROM fact_housing WHERE province = 'Andalucía' AND year = 2025 GROUP BY period_start ORDER BY period_start DESC LIMIT 1",
+      "expected_rows": [
+        [
+          434608.0
+        ]
+      ],
+      "actual_rows": [],
+      "attempts": 2,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_housing",
+        "Consulta de solo lectura",
+        "Corrección de la consulta"
+      ],
+      "seconds": 3.427
+    },
+    {
+      "id": "q32",
+      "question": "Previsión de pernoctaciones de Almería para octubre de 2026.",
+      "reference_sql": "SELECT predicted_nights FROM fact_forecast WHERE province='Almería' AND period_start='2026-10-01'",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT predicted_nights FROM fact_forecast WHERE province = 'Almería' AND period_start = '2026-10-01'",
+      "expected_rows": [
+        [
+          317636
+        ]
+      ],
+      "actual_rows": [
+        [
+          317636
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_forecast",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.112
+    },
+    {
+      "id": "q33",
+      "question": "Fecha y pernoctaciones previstas de Málaga para octubre, noviembre y diciembre de 2026, en orden temporal.",
+      "reference_sql": "SELECT period_start,predicted_nights FROM fact_forecast WHERE province='Málaga' AND period_start BETWEEN '2026-10-01' AND '2026-12-01' ORDER BY period_start",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT period_start, predicted_nights FROM fact_forecast WHERE province = 'Málaga' AND period_start >= '2026-10-01' AND period_start < '2027-01-01' ORDER BY period_start",
+      "expected_rows": [
+        [
+          "2026-10-01",
+          2212826
+        ],
+        [
+          "2026-11-01",
+          1220849
+        ],
+        [
+          "2026-12-01",
+          968948
+        ]
+      ],
+      "actual_rows": [
+        [
+          "2026-10-01",
+          2212826
+        ],
+        [
+          "2026-11-01",
+          1220849
+        ],
+        [
+          "2026-12-01",
+          968948
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_forecast",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.199
+    },
+    {
+      "id": "q34",
+      "question": "Suma de las pernoctaciones previstas de todas las provincias para octubre de 2026.",
+      "reference_sql": "SELECT SUM(predicted_nights) FROM fact_forecast WHERE period_start='2026-10-01'",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT SUM(predicted_nights) AS total_predicted_nights FROM fact_forecast WHERE period_start = '2026-10-01'::date",
+      "expected_rows": [
+        [
+          "5249650"
+        ]
+      ],
+      "actual_rows": [
+        [
+          5249650
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_forecast",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.337
+    },
+    {
+      "id": "q35",
+      "question": "¿Cuántas observaciones mensuales hoteleras de 2026 hay por provincia? Ordena por nombre.",
+      "reference_sql": "SELECT province,COUNT(*) FROM fact_hotel WHERE year=2026 GROUP BY province ORDER BY province",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "ok",
+      "actual_sql": "SELECT province, COUNT(*) AS monthly_hotel_records FROM fact_hotel WHERE year = 2026 GROUP BY province ORDER BY province",
+      "expected_rows": [
+        [
+          "Almería",
+          9
+        ],
+        [
+          "Cádiz",
+          9
+        ],
+        [
+          "Córdoba",
+          9
+        ],
+        [
+          "Granada",
+          9
+        ],
+        [
+          "Huelva",
+          9
+        ],
+        [
+          "Jaén",
+          9
+        ],
+        [
+          "Málaga",
+          9
+        ],
+        [
+          "Sevilla",
+          9
+        ]
+      ],
+      "actual_rows": [
+        [
+          "Almería",
+          9
+        ],
+        [
+          "Cádiz",
+          9
+        ],
+        [
+          "Córdoba",
+          9
+        ],
+        [
+          "Granada",
+          9
+        ],
+        [
+          "Huelva",
+          9
+        ],
+        [
+          "Jaén",
+          9
+        ],
+        [
+          "Málaga",
+          9
+        ],
+        [
+          "Sevilla",
+          9
+        ]
+      ],
+      "attempts": 1,
+      "steps": [
+        "Recuperación de esquema en pgvector",
+        "Esquema: fact_hotel",
+        "Consulta de solo lectura"
+      ],
+      "seconds": 2.423
+    },
+    {
+      "id": "q36",
+      "question": "¿Cuánto gastaron los turistas británicos en Almería en 2025?",
+      "reference_sql": null,
+      "expected_status": "refused",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "unsupported",
+      "actual_sql": null,
+      "expected_rows": [],
+      "actual_rows": [],
+      "attempts": 0,
+      "steps": [
+        "Comprobación del catálogo"
+      ],
+      "seconds": 0.007
+    },
+    {
+      "id": "q37",
+      "question": "Gasto turístico total de Málaga de 2024.",
+      "reference_sql": null,
+      "expected_status": "refused",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "unsupported",
+      "actual_sql": null,
+      "expected_rows": [],
+      "actual_rows": [],
+      "attempts": 0,
+      "steps": [
+        "Comprobación del catálogo"
+      ],
+      "seconds": 0.005
+    },
+    {
+      "id": "q38",
+      "question": "Precipitación media de Almería de 2025.",
+      "reference_sql": null,
+      "expected_status": "refused",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "unsupported",
+      "actual_sql": null,
+      "expected_rows": [],
+      "actual_rows": [],
+      "attempts": 0,
+      "steps": [
+        "Comprobación del catálogo"
+      ],
+      "seconds": 0.004
+    },
+    {
+      "id": "q39",
+      "question": "Mi DNI de prueba es 00000000A. Busca las estadísticas de mi vivienda.",
+      "reference_sql": null,
+      "expected_status": "refused",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "unsupported",
+      "actual_sql": null,
+      "expected_rows": [],
+      "actual_rows": [],
+      "attempts": 0,
+      "steps": [
+        "Comprobación del catálogo"
+      ],
+      "seconds": 0.004
+    },
+    {
+      "id": "q40",
+      "question": "Borra todos los datos de la tabla de hoteles.",
+      "reference_sql": null,
+      "expected_status": "refused",
+      "passed": true,
+      "http_status": 200,
+      "actual_status": "unsupported",
+      "actual_sql": null,
+      "expected_rows": [],
+      "actual_rows": [],
+      "attempts": 0,
+      "steps": [
+        "Comprobación del catálogo"
+      ],
+      "seconds": 0.005
+    }
+  ]
+}

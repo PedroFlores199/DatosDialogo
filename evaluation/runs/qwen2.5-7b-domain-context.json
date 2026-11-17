@@ -1,0 +1,2114 @@
+{
+  "complete": true,
+  "at": "2026-11-17T02:27:31.678979Z",
+  "model": "qwen2.5:7b-instruct",
+  "runner": "JUnit 5 / Java 21 / real HTTP API and PostgreSQL reference queries",
+  "sql_cases": 35,
+  "sql_execution_accuracy": 0.7428571428571429,
+  "refusal_cases": 5,
+  "correct_refusals": 5,
+  "results": [
+    {
+      "id": "q01",
+      "question": "¿Cuántas pernoctaciones hoteleras hubo en Almería en 2025?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "e30ed0e8-d868-474e-9e98-cdc212c17695",
+          "sql": "SELECT SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Almería' AND year = 2025",
+          "columns": [
+            "total_nights"
+          ],
+          "rows": [
+            {
+              "total_nights": 5303084.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 25.534542
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.567759375
+      },
+      "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2025",
+      "expected_rows": [
+        {
+          "sum": 5303084.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.832714042
+    },
+    {
+      "id": "q02",
+      "question": "¿Y en 2024?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "0a3d61da-1354-4951-b2d7-54cb3fd93067",
+          "sql": "SELECT SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Almería' AND year = 2024",
+          "columns": [
+            "total_nights"
+          ],
+          "rows": [
+            {
+              "total_nights": 5137903.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 17.296875
+        },
+        "chart": null,
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.529170208
+      },
+      "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2024",
+      "expected_rows": [
+        {
+          "sum": 5137903.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.557380709
+    },
+    {
+      "id": "q03",
+      "question": "¿Cuántos viajeros se alojaron en hoteles de Andalucía en 2025?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "22c3d2de-05e9-44b6-8cb6-b19beb407d6b",
+          "sql": "SELECT SUM(travelers_total) AS total_travelers FROM fact_hotel WHERE year = 2025 AND province IN ('Almería', 'Cádiz', 'Córdoba', 'Granada', 'Huelva', 'Jaén', 'Málaga', 'Sevilla')",
+          "columns": [
+            "total_travelers"
+          ],
+          "rows": [
+            {
+              "total_travelers": 20334167.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 13.314959
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 1.885895125
+      },
+      "reference_sql": "SELECT SUM(travelers_total) FROM fact_hotel WHERE year=2025",
+      "expected_rows": [
+        {
+          "sum": 20334167.0
+        }
+      ],
+      "passed": true,
+      "seconds": 1.9011405
+    },
+    {
+      "id": "q04",
+      "question": "Total de pernoctaciones hoteleras en Cádiz en 2024.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "79cfa15b-cc26-4097-b170-14e80e65374b",
+          "sql": "SELECT SUM(nights_total) AS total_pernoctaciones FROM fact_hotel WHERE province = 'Cádiz' AND year = 2024",
+          "columns": [
+            "total_pernoctaciones"
+          ],
+          "rows": [
+            {
+              "total_pernoctaciones": 8451672.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 9.143416
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.550109375
+      },
+      "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Cádiz' AND year=2024",
+      "expected_rows": [
+        {
+          "sum": 8451672.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.568814125
+    },
+    {
+      "id": "q05",
+      "question": "¿Cuántos viajeros residentes en España recibió Sevilla en sus hoteles en 2025?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "2f31da51-df63-4560-a443-e83d448aa232",
+          "sql": "SELECT SUM(travelers_domestic) AS domestic_travelers FROM fact_hotel WHERE province = 'Sevilla' AND year = 2025",
+          "columns": [
+            "domestic_travelers"
+          ],
+          "rows": [
+            {
+              "domestic_travelers": 1642173.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 9.28125
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "dim_province: Ocho provincias: Almería, Cádiz, Córdoba, Granada, Huelva, Jaén, Málaga, Sevilla. Columnas: code text, province text, region text, latitude float, longitude float. Relación province con fact_hotel, fact_housing y fact_forecast. No relaciona países ni reparte gasto regional."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.609769875
+      },
+      "reference_sql": "SELECT SUM(travelers_domestic) FROM fact_hotel WHERE province='Sevilla' AND year=2025",
+      "expected_rows": [
+        {
+          "sum": 1642173.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.626905708
+    },
+    {
+      "id": "q06",
+      "question": "¿Cuántas pernoctaciones de residentes en el extranjero hubo en hoteles de Málaga en 2023?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "264c1d11-c55d-4cc3-8cd6-fe2b95fc1257",
+          "sql": "SELECT SUM(nights_foreign) AS foreign_nights FROM fact_hotel WHERE province = 'Málaga' AND year = 2023",
+          "columns": [
+            "foreign_nights"
+          ],
+          "rows": [
+            {
+              "foreign_nights": 15623198.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 14.783875
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.491111291
+      },
+      "reference_sql": "SELECT SUM(nights_foreign) FROM fact_hotel WHERE province='Málaga' AND year=2023",
+      "expected_rows": [
+        {
+          "sum": 15623198.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.506859167
+    },
+    {
+      "id": "q07",
+      "question": "Número estimado de hoteles abiertos en Córdoba en junio de 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "08ef561a-f878-42bc-9f06-346e37700957",
+          "sql": "SELECT hotels FROM fact_hotel WHERE province = 'Córdoba' AND EXTRACT(MONTH FROM period_start) = 6 AND year = 2025",
+          "columns": [
+            "hotels"
+          ],
+          "rows": [
+            {
+              "hotels": 171.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 13.238917
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.178926542
+      },
+      "reference_sql": "SELECT hotels FROM fact_hotel WHERE province='Córdoba' AND period_start='2025-06-01'",
+      "expected_rows": [
+        {
+          "hotels": 171.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.196773708
+    },
+    {
+      "id": "q08",
+      "question": "Ordena las provincias por pernoctaciones hoteleras totales de 2025, de mayor a menor.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 8 filas.",
+        "result": {
+          "id": "0ec4f7cf-0250-4961-b981-563df0a690f7",
+          "sql": "SELECT province, SUM(nights_total) AS total_nights FROM fact_hotel WHERE year = 2025 GROUP BY province ORDER BY total_nights DESC",
+          "columns": [
+            "province",
+            "total_nights"
+          ],
+          "rows": [
+            {
+              "province": "Málaga",
+              "total_nights": 22208487.0
+            },
+            {
+              "province": "Cádiz",
+              "total_nights": 8708082.0
+            },
+            {
+              "province": "Sevilla",
+              "total_nights": 7836533.0
+            },
+            {
+              "province": "Granada",
+              "total_nights": 6063112.0
+            },
+            {
+              "province": "Almería",
+              "total_nights": 5303084.0
+            },
+            {
+              "province": "Huelva",
+              "total_nights": 3949509.0
+            },
+            {
+              "province": "Córdoba",
+              "total_nights": 1992602.0
+            },
+            {
+              "province": "Jaén",
+              "total_nights": 1065851.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 15.573333
+        },
+        "chart": {
+          "x": "province",
+          "type": "bar",
+          "y": "total_nights"
+        },
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.207094875
+      },
+      "reference_sql": "SELECT province,SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY SUM(nights_total) DESC",
+      "expected_rows": [
+        {
+          "province": "Málaga",
+          "sum": 22208487.0
+        },
+        {
+          "province": "Cádiz",
+          "sum": 8708082.0
+        },
+        {
+          "province": "Sevilla",
+          "sum": 7836533.0
+        },
+        {
+          "province": "Granada",
+          "sum": 6063112.0
+        },
+        {
+          "province": "Almería",
+          "sum": 5303084.0
+        },
+        {
+          "province": "Huelva",
+          "sum": 3949509.0
+        },
+        {
+          "province": "Córdoba",
+          "sum": 1992602.0
+        },
+        {
+          "province": "Jaén",
+          "sum": 1065851.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.225386292
+    },
+    {
+      "id": "q09",
+      "question": "Ranking de provincias por viajeros alojados en 2024, de mayor a menor.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 8 filas.",
+        "result": {
+          "id": "78fae484-1e42-4f57-8019-36340ea971ba",
+          "sql": "SELECT province, SUM(travelers_total) AS total_travelers FROM fact_hotel WHERE year = 2024 GROUP BY province ORDER BY total_travelers DESC",
+          "columns": [
+            "province",
+            "total_travelers"
+          ],
+          "rows": [
+            {
+              "province": "Málaga",
+              "total_travelers": 6300504.0
+            },
+            {
+              "province": "Sevilla",
+              "total_travelers": 3924011.0
+            },
+            {
+              "province": "Granada",
+              "total_travelers": 2854062.0
+            },
+            {
+              "province": "Cádiz",
+              "total_travelers": 2853147.0
+            },
+            {
+              "province": "Almería",
+              "total_travelers": 1478392.0
+            },
+            {
+              "province": "Córdoba",
+              "total_travelers": 1155267.0
+            },
+            {
+              "province": "Huelva",
+              "total_travelers": 1138150.0
+            },
+            {
+              "province": "Jaén",
+              "total_travelers": 587959.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 10.938375
+        },
+        "chart": {
+          "x": "province",
+          "type": "bar",
+          "y": "total_travelers"
+        },
+        "sources": [
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "dim_province: Ocho provincias: Almería, Cádiz, Córdoba, Granada, Huelva, Jaén, Málaga, Sevilla. Columnas: code text, province text, region text, latitude float, longitude float. Relación province con fact_hotel, fact_housing y fact_forecast. No relaciona países ni reparte gasto regional.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.334922667
+      },
+      "reference_sql": "SELECT province,SUM(travelers_total) FROM fact_hotel WHERE year=2024 GROUP BY province ORDER BY SUM(travelers_total) DESC",
+      "expected_rows": [
+        {
+          "province": "Málaga",
+          "sum": 6300504.0
+        },
+        {
+          "province": "Sevilla",
+          "sum": 3924011.0
+        },
+        {
+          "province": "Granada",
+          "sum": 2854062.0
+        },
+        {
+          "province": "Cádiz",
+          "sum": 2853147.0
+        },
+        {
+          "province": "Almería",
+          "sum": 1478392.0
+        },
+        {
+          "province": "Córdoba",
+          "sum": 1155267.0
+        },
+        {
+          "province": "Huelva",
+          "sum": 1138150.0
+        },
+        {
+          "province": "Jaén",
+          "sum": 587959.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.3601745
+    },
+    {
+      "id": "q10",
+      "question": "Muestra el número de mes y las pernoctaciones de Almería de 2025, en orden de mes.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "La consulta no devuelve observaciones para esa selección.",
+        "result": {
+          "id": "36acc656-f4d6-4922-a143-0d9c620fa096",
+          "sql": "SELECT EXTRACT(MONTH FROM fact_hotel.period_start) AS month, SUM(fact_hotel.nights_total) AS nights_total FROM fact_hotel JOIN dim_province ON fact_hotel.province = dim_province.code WHERE dim_province.province = 'Almería' AND fact_hotel.year = 2025 GROUP BY EXTRACT(MONTH FROM fact_hotel.period_start) ORDER BY EXTRACT(MONTH FROM fact_hotel.period_start)",
+          "columns": [
+            "month",
+            "nights_total"
+          ],
+          "rows": [],
+          "truncated": false,
+          "milliseconds": 20.9905
+        },
+        "chart": null,
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal.",
+          "dim_province: Ocho provincias: Almería, Cádiz, Córdoba, Granada, Huelva, Jaén, Málaga, Sevilla. Columnas: code text, province text, region text, latitude float, longitude float. Relación province con fact_hotel, fact_housing y fact_forecast. No relaciona países ni reparte gasto regional."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 3.57501425
+      },
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2025 GROUP BY period_start ORDER BY period_start",
+      "expected_rows": [
+        {
+          "extract": 1,
+          "sum": 90711.0
+        },
+        {
+          "extract": 2,
+          "sum": 186261.0
+        },
+        {
+          "extract": 3,
+          "sum": 246639.0
+        },
+        {
+          "extract": 4,
+          "sum": 389483.0
+        },
+        {
+          "extract": 5,
+          "sum": 487673.0
+        },
+        {
+          "extract": 6,
+          "sum": 689293.0
+        },
+        {
+          "extract": 7,
+          "sum": 931239.0
+        },
+        {
+          "extract": 8,
+          "sum": 1033988.0
+        },
+        {
+          "extract": 9,
+          "sum": 687707.0
+        },
+        {
+          "extract": 10,
+          "sum": 317636.0
+        },
+        {
+          "extract": 11,
+          "sum": 128638.0
+        },
+        {
+          "extract": 12,
+          "sum": 113816.0
+        }
+      ],
+      "passed": false,
+      "seconds": 3.605636292
+    },
+    {
+      "id": "q11",
+      "question": "Muestra el número de mes y las pernoctaciones de toda Andalucía en 2025, en orden de mes.",
+      "http_status": 200,
+      "answer": {
+        "status": "error",
+        "message": "No se ha obtenido una consulta válida. Especifica el indicador, el año y el territorio.",
+        "result": null,
+        "chart": null,
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura",
+          "Corrección de la consulta"
+        ],
+        "attempts": 2,
+        "seconds": 4.199881709
+      },
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY period_start ORDER BY period_start",
+      "expected_rows": [
+        {
+          "extract": 1,
+          "sum": 2298452.0
+        },
+        {
+          "extract": 2,
+          "sum": 2887855.0
+        },
+        {
+          "extract": 3,
+          "sum": 3689957.0
+        },
+        {
+          "extract": 4,
+          "sum": 5013181.0
+        },
+        {
+          "extract": 5,
+          "sum": 5608741.0
+        },
+        {
+          "extract": 6,
+          "sum": 5989207.0
+        },
+        {
+          "extract": 7,
+          "sum": 6852207.0
+        },
+        {
+          "extract": 8,
+          "sum": 7566847.0
+        },
+        {
+          "extract": 9,
+          "sum": 6174903.0
+        },
+        {
+          "extract": 10,
+          "sum": 5246920.0
+        },
+        {
+          "extract": 11,
+          "sum": 3133978.0
+        },
+        {
+          "extract": 12,
+          "sum": 2665012.0
+        }
+      ],
+      "passed": false,
+      "seconds": 4.246560541
+    },
+    {
+      "id": "q12",
+      "question": "¿Qué mes de 2025 tuvo más pernoctaciones hoteleras en Málaga? Devuelve número de mes y pernoctaciones.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "051e7005-93d8-47a9-8403-41a256242262",
+          "sql": "SELECT EXTRACT(MONTH FROM period_start) AS month, SUM(nights_total) AS nights FROM fact_hotel WHERE province = 'Málaga' AND year = 2025 GROUP BY month ORDER BY nights DESC LIMIT 1",
+          "columns": [
+            "month",
+            "nights"
+          ],
+          "rows": [
+            {
+              "month": 8,
+              "nights": 2860300.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 18.075292
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.945368542
+      },
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),nights_total FROM fact_hotel WHERE province='Málaga' AND year=2025 ORDER BY nights_total DESC LIMIT 1",
+      "expected_rows": [
+        {
+          "extract": 8,
+          "nights_total": 2860300.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.971786959
+    },
+    {
+      "id": "q13",
+      "question": "¿Qué provincia tuvo menos pernoctaciones hoteleras en 2025? Devuelve provincia y total.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "1c84119f-6ff0-4954-8732-a77b84abb8e4",
+          "sql": "SELECT province, SUM(nights_total) AS total_pernoctaciones FROM fact_hotel WHERE year = 2025 GROUP BY province ORDER BY total_pernoctaciones ASC LIMIT 1",
+          "columns": [
+            "province",
+            "total_pernoctaciones"
+          ],
+          "rows": [
+            {
+              "province": "Jaén",
+              "total_pernoctaciones": 1065851.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 16.144834
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.542249042
+      },
+      "reference_sql": "SELECT province,SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY SUM(nights_total) LIMIT 1",
+      "expected_rows": [
+        {
+          "province": "Jaén",
+          "sum": 1065851.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.56110725
+    },
+    {
+      "id": "q14",
+      "question": "Total de pernoctaciones hoteleras de residentes extranjeros en Andalucía en 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "ca7bad75-6bdc-47b1-8c59-8b6e7ab88328",
+          "sql": "SELECT SUM(nights_foreign) AS total_pernoctaciones FROM fact_hotel WHERE province IS NULL AND year = 2025",
+          "columns": [
+            "total_pernoctaciones"
+          ],
+          "rows": [
+            {
+              "total_pernoctaciones": null
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 24.757708
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.404206917
+      },
+      "reference_sql": "SELECT SUM(nights_foreign) FROM fact_hotel WHERE year=2025",
+      "expected_rows": [
+        {
+          "sum": 31721592.0
+        }
+      ],
+      "passed": false,
+      "seconds": 2.43196575
+    },
+    {
+      "id": "q15",
+      "question": "¿Qué porcentaje de los viajeros hoteleros de Cádiz en 2024 residía en el extranjero?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "84d4db5d-5d8f-44ca-8cbc-b76d34b2731f",
+          "sql": "SELECT 100.0 * SUM(travelers_foreign) / NULLIF(SUM(travelers_total), 0) AS foreign_percentage FROM fact_hotel WHERE province = 'Cádiz' AND year = 2024",
+          "columns": [
+            "foreign_percentage"
+          ],
+          "rows": [
+            {
+              "foreign_percentage": 32.33163240449931
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 16.3985
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "dim_province: Ocho provincias: Almería, Cádiz, Córdoba, Granada, Huelva, Jaén, Málaga, Sevilla. Columnas: code text, province text, region text, latitude float, longitude float. Relación province con fact_hotel, fact_housing y fact_forecast. No relaciona países ni reparte gasto regional."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 1.663718125
+      },
+      "reference_sql": "SELECT 100.0*SUM(travelers_foreign)/SUM(travelers_total) FROM fact_hotel WHERE province='Cádiz' AND year=2024",
+      "expected_rows": [
+        {
+          "?column?": 32.33163240449931
+        }
+      ],
+      "passed": true,
+      "seconds": 1.688015125
+    },
+    {
+      "id": "q16",
+      "question": "Estancia media agregada en hoteles de Almería durante 2025, en noches por viajero.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "07fea716-013d-4a29-9975-825522008d6d",
+          "sql": "SELECT province, SUM(nights_total) / NULLIF(SUM(travelers_total), 0) AS mean_stay FROM fact_hotel WHERE province = 'Almería' AND year = 2025 GROUP BY province",
+          "columns": [
+            "province",
+            "mean_stay"
+          ],
+          "rows": [
+            {
+              "province": "Almería",
+              "mean_stay": 3.3928902065836253
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 19.459292
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.315920584
+      },
+      "reference_sql": "SELECT SUM(nights_total)/SUM(travelers_total) FROM fact_hotel WHERE province='Almería' AND year=2025",
+      "expected_rows": [
+        {
+          "?column?": 3.3928902065836253
+        }
+      ],
+      "passed": false,
+      "seconds": 2.336349459
+    },
+    {
+      "id": "q17",
+      "question": "Ocupación hotelera media de Andalucía de 2025, en porcentaje, ponderada por plazas y días de cada mes.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "d0cf09d9-5a2e-49de-a80d-af7253a1397f",
+          "sql": "SELECT (SUM(occupancy_pct::numeric * hotel_beds * EXTRACT(DAY FROM (period_start + INTERVAL '1 month' - INTERVAL '1 day'))) / NULLIF(SUM(hotel_beds * EXTRACT(DAY FROM (period_start + INTERVAL '1 month' - INTERVAL '1 day'))), 0)) AS avg_occupancy FROM fact_hotel WHERE year = 2025 AND province IS NULL",
+          "columns": [
+            "avg_occupancy"
+          ],
+          "rows": [
+            {
+              "avg_occupancy": null
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 19.075916
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.522254417
+      },
+      "reference_sql": "SELECT SUM(occupancy_pct*(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))))/SUM(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))) FROM fact_hotel WHERE year=2025",
+      "expected_rows": [
+        {
+          "?column?": 56.690647734135126
+        }
+      ],
+      "passed": false,
+      "seconds": 2.550629542
+    },
+    {
+      "id": "q18",
+      "question": "Ocupación hotelera de Málaga de 2025, en porcentaje, ponderada por plazas y días de cada mes.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "300a16a4-5bff-4b55-b2f1-e882612c4c97",
+          "sql": "SELECT province, (SUM(occupancy_pct::numeric * hotel_beds * EXTRACT(DAY FROM (period_start + INTERVAL '1 month' - INTERVAL '1 day'))) / NULLIF(SUM(hotel_beds * EXTRACT(DAY FROM (period_start + INTERVAL '1 month' - INTERVAL '1 day'))), 0)) * 100 AS ocupacion_ponderada FROM fact_hotel WHERE province = 'Málaga' AND year = 2025 GROUP BY province",
+          "columns": [
+            "province",
+            "ocupacion_ponderada"
+          ],
+          "rows": [
+            {
+              "province": "Málaga",
+              "ocupacion_ponderada": 6275.189438895605
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 18.366083
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 3.66704775
+      },
+      "reference_sql": "SELECT SUM(occupancy_pct*(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))))/SUM(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))) FROM fact_hotel WHERE province='Málaga' AND year=2025",
+      "expected_rows": [
+        {
+          "?column?": 62.75189438895605
+        }
+      ],
+      "passed": false,
+      "seconds": 3.695170292
+    },
+    {
+      "id": "q19",
+      "question": "Pernoctaciones hoteleras de Almería por año, desde 2022 hasta 2025, ordenadas por año.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 4 filas.",
+        "result": {
+          "id": "a83500d4-5b7b-43df-8594-f18d175230ac",
+          "sql": "SELECT year, SUM(nights_total) AS total_nights FROM fact_hotel WHERE province = 'Almería' AND year BETWEEN 2022 AND 2025 GROUP BY year ORDER BY year",
+          "columns": [
+            "year",
+            "total_nights"
+          ],
+          "rows": [
+            {
+              "year": 2022,
+              "total_nights": 4677243.0
+            },
+            {
+              "year": 2023,
+              "total_nights": 4900931.0
+            },
+            {
+              "year": 2024,
+              "total_nights": 5137903.0
+            },
+            {
+              "year": 2025,
+              "total_nights": 5303084.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 16.555208
+        },
+        "chart": {
+          "x": "year",
+          "type": "bar",
+          "y": "total_nights"
+        },
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.689365125
+      },
+      "reference_sql": "SELECT year,SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year BETWEEN 2022 AND 2025 GROUP BY year ORDER BY year",
+      "expected_rows": [
+        {
+          "year": 2022,
+          "sum": 4677243.0
+        },
+        {
+          "year": 2023,
+          "sum": 4900931.0
+        },
+        {
+          "year": 2024,
+          "sum": 5137903.0
+        },
+        {
+          "year": 2025,
+          "sum": 5303084.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.715263667
+    },
+    {
+      "id": "q20",
+      "question": "Porcentaje de variación de las pernoctaciones hoteleras totales de Almería entre 2024 y 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "1af89709-0e68-4950-a138-5411bcaca6d0",
+          "sql": "SELECT 100.0 * (SUM(CASE WHEN year = 2025 THEN nights_total ELSE 0 END) / NULLIF(SUM(CASE WHEN year = 2024 THEN nights_total ELSE 0 END), 0) - 1) AS variation FROM fact_hotel WHERE province = 'Almería'",
+          "columns": [
+            "variation"
+          ],
+          "rows": [
+            {
+              "variation": 3.2149497567392826
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 14.2545
+        },
+        "chart": null,
+        "sources": [
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.055008375
+      },
+      "reference_sql": "SELECT 100.0*(SUM(CASE WHEN year=2025 THEN nights_total ELSE 0 END)/SUM(CASE WHEN year=2024 THEN nights_total ELSE 0 END)-1) FROM fact_hotel WHERE province='Almería' AND year IN(2024,2025)",
+      "expected_rows": [
+        {
+          "?column?": 3.2149497567392826
+        }
+      ],
+      "passed": true,
+      "seconds": 2.085869709
+    },
+    {
+      "id": "q21",
+      "question": "¿Cuánto gastaron en total los turistas de Reino Unido en Andalucía en 2025?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "b805e191-7779-4bdf-8b70-bfc2ac1e14fe",
+          "sql": "SELECT spend_eur FROM fact_markets_annual WHERE region = 'Andalucía' AND country = 'Reino Unido' AND year = 2025",
+          "columns": [
+            "spend_eur"
+          ],
+          "rows": [
+            {
+              "spend_eur": 3708930000.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 16.436084
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 1.348326833
+      },
+      "reference_sql": "SELECT spend_eur FROM fact_markets_annual WHERE country='Reino Unido' AND year=2025",
+      "expected_rows": [
+        {
+          "spend_eur": 3708930000.0
+        }
+      ],
+      "passed": true,
+      "seconds": 1.368782084
+    },
+    {
+      "id": "q22",
+      "question": "Ordena los países de origen por gasto total en Andalucía de 2025, excluyendo la fila Total.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 5 filas.",
+        "result": {
+          "id": "046747f1-61bf-49e5-b098-2673588eed3c",
+          "sql": "SELECT country, spend_eur FROM fact_markets_annual WHERE region = 'Andalucía' AND year = 2025 AND country <> 'Total' ORDER BY spend_eur DESC",
+          "columns": [
+            "country",
+            "spend_eur"
+          ],
+          "rows": [
+            {
+              "country": "Reino Unido",
+              "spend_eur": 3708930000.0
+            },
+            {
+              "country": "Países Nórdicos",
+              "spend_eur": 2171750000.0
+            },
+            {
+              "country": "Alemania",
+              "spend_eur": 1685700000.0
+            },
+            {
+              "country": "Francia",
+              "spend_eur": 1431700000.0
+            },
+            {
+              "country": "Italia",
+              "spend_eur": 649220000.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 15.479083
+        },
+        "chart": {
+          "x": "country",
+          "type": "bar",
+          "y": "spend_eur"
+        },
+        "sources": [
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.765535625
+      },
+      "reference_sql": "SELECT country,spend_eur FROM fact_markets_annual WHERE year=2025 AND country<>'Total' ORDER BY spend_eur DESC",
+      "expected_rows": [
+        {
+          "country": "Reino Unido",
+          "spend_eur": 3708930000.0
+        },
+        {
+          "country": "Países Nórdicos",
+          "spend_eur": 2171750000.0
+        },
+        {
+          "country": "Alemania",
+          "spend_eur": 1685700000.0
+        },
+        {
+          "country": "Francia",
+          "spend_eur": 1431700000.0
+        },
+        {
+          "country": "Italia",
+          "spend_eur": 649220000.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.783829042
+    },
+    {
+      "id": "q23",
+      "question": "Gasto turístico internacional total anual de Andalucía en 2024 según la fila Total de mercados.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "ae926a93-57e4-4c40-94e5-c1f885d79381",
+          "sql": "SELECT spend_eur FROM fact_markets_annual WHERE region = 'Andalucía' AND year = 2024 AND country = 'Total'",
+          "columns": [
+            "spend_eur"
+          ],
+          "rows": [
+            {
+              "spend_eur": 18460330000.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 17.774042
+        },
+        "chart": null,
+        "sources": [
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 1.088988375
+      },
+      "reference_sql": "SELECT spend_eur FROM fact_markets_annual WHERE year=2024 AND country='Total'",
+      "expected_rows": [
+        {
+          "spend_eur": 18460330000.0
+        }
+      ],
+      "passed": true,
+      "seconds": 1.107001959
+    },
+    {
+      "id": "q24",
+      "question": "Suma del gasto turístico internacional mensual de Andalucía durante 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "f4333442-b68b-4394-b4de-f6ffb05a1a2a",
+          "sql": "SELECT SUM(spend_eur) AS total_spend FROM fact_markets_annual WHERE region = 'Andalucía' AND year = 2025 AND country = 'Total'",
+          "columns": [
+            "total_spend"
+          ],
+          "rows": [
+            {
+              "total_spend": 20032820000.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 15.591458
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Esquema: fact_markets_annual",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.102948584
+      },
+      "reference_sql": "SELECT SUM(spend_eur) FROM fact_region_monthly WHERE year=2025",
+      "expected_rows": [
+        {
+          "sum": 20032810000.0
+        }
+      ],
+      "passed": false,
+      "seconds": 2.120856167
+    },
+    {
+      "id": "q25",
+      "question": "¿Cuántos turistas internacionales recibió Andalucía en 2025 según FRONTUR?",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "756c4164-cc60-4323-b3a8-dd682a77c2d2",
+          "sql": "SELECT SUM(nights_foreign) AS total_foreign_nights FROM fact_hotel WHERE province = 'Andalucía' AND year = 2025",
+          "columns": [
+            "total_foreign_nights"
+          ],
+          "rows": [
+            {
+              "total_foreign_nights": null
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 15.562958
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura",
+          "Esquema: fact_markets_annual",
+          "Corrección de la consulta"
+        ],
+        "attempts": 2,
+        "seconds": 5.44418
+      },
+      "reference_sql": "SELECT SUM(international_tourists) FROM fact_region_monthly WHERE year=2025",
+      "expected_rows": [
+        {
+          "sum": 14432411.0
+        }
+      ],
+      "passed": false,
+      "seconds": 5.458775
+    },
+    {
+      "id": "q26",
+      "question": "Gasto internacional de Andalucía por número de mes en 2025, ordenado por mes.",
+      "http_status": 200,
+      "answer": {
+        "status": "error",
+        "message": "No se ha obtenido una consulta válida. Especifica el indicador, el año y el territorio.",
+        "result": null,
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura",
+          "Corrección de la consulta"
+        ],
+        "attempts": 2,
+        "seconds": 4.231279417
+      },
+      "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),spend_eur FROM fact_region_monthly WHERE year=2025 ORDER BY period_start",
+      "expected_rows": [
+        {
+          "extract": 1,
+          "spend_eur": 990450000.0
+        },
+        {
+          "extract": 2,
+          "spend_eur": 1035160000.0000001
+        },
+        {
+          "extract": 3,
+          "spend_eur": 1588940000.0
+        },
+        {
+          "extract": 4,
+          "spend_eur": 1731920000.0
+        },
+        {
+          "extract": 5,
+          "spend_eur": 1896060000.0
+        },
+        {
+          "extract": 6,
+          "spend_eur": 1915270000.0
+        },
+        {
+          "extract": 7,
+          "spend_eur": 2180010000.0
+        },
+        {
+          "extract": 8,
+          "spend_eur": 2353560000.0
+        },
+        {
+          "extract": 9,
+          "spend_eur": 2019960000.0
+        },
+        {
+          "extract": 10,
+          "spend_eur": 2029290000.0
+        },
+        {
+          "extract": 11,
+          "spend_eur": 1175760000.0
+        },
+        {
+          "extract": 12,
+          "spend_eur": 1116430000.0
+        }
+      ],
+      "passed": false,
+      "seconds": 4.248086625
+    },
+    {
+      "id": "q27",
+      "question": "Gasto medio por persona de los turistas de Reino Unido en Andalucía durante 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "561982b8-7f69-4a93-8ade-794305773bad",
+          "sql": "SELECT spend_per_person_eur FROM fact_markets_annual WHERE region = 'Andalucía' AND country = 'Reino Unido' AND year = 2025",
+          "columns": [
+            "spend_per_person_eur"
+          ],
+          "rows": [
+            {
+              "spend_per_person_eur": 1197.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 8.161833
+        },
+        "chart": null,
+        "sources": [
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.015658
+      },
+      "reference_sql": "SELECT spend_per_person_eur FROM fact_markets_annual WHERE country='Reino Unido' AND year=2025",
+      "expected_rows": [
+        {
+          "spend_per_person_eur": 1197.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.027135625
+    },
+    {
+      "id": "q28",
+      "question": "Número de viviendas turísticas de Almería en la última observación disponible de 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "a49d7e80-6ca3-40c7-b3ce-a702aaf510a4",
+          "sql": "SELECT homes FROM fact_housing WHERE province = 'Almería' AND year = 2025 AND period_start = (SELECT MAX(period_start) FROM fact_housing WHERE province = 'Almería' AND year = 2025)",
+          "columns": [
+            "homes"
+          ],
+          "rows": [
+            {
+              "homes": 6368.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 10.957167
+        },
+        "chart": null,
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 1.362619584
+      },
+      "reference_sql": "SELECT homes FROM fact_housing WHERE province='Almería' AND year=2025 ORDER BY period_start DESC LIMIT 1",
+      "expected_rows": [
+        {
+          "homes": 6368.0
+        }
+      ],
+      "passed": true,
+      "seconds": 1.375472542
+    },
+    {
+      "id": "q29",
+      "question": "Viviendas turísticas de cada provincia en la última captura de 2025, ordenadas de mayor a menor.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 8 filas.",
+        "result": {
+          "id": "2a20a233-1f5a-4deb-aeb2-8c4079a16a9a",
+          "sql": "SELECT province, homes FROM fact_housing WHERE year = 2025 AND period_start = (SELECT MAX(period_start) FROM fact_housing WHERE year = 2025) ORDER BY homes DESC",
+          "columns": [
+            "province",
+            "homes"
+          ],
+          "rows": [
+            {
+              "province": "Málaga",
+              "homes": 48261.0
+            },
+            {
+              "province": "Cádiz",
+              "homes": 14751.0
+            },
+            {
+              "province": "Sevilla",
+              "homes": 8481.0
+            },
+            {
+              "province": "Granada",
+              "homes": 7537.0
+            },
+            {
+              "province": "Almería",
+              "homes": 6368.0
+            },
+            {
+              "province": "Córdoba",
+              "homes": 2831.0
+            },
+            {
+              "province": "Huelva",
+              "homes": 2439.0
+            },
+            {
+              "province": "Jaén",
+              "homes": 1089.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 14.135667
+        },
+        "chart": {
+          "x": "province",
+          "type": "bar",
+          "y": "homes"
+        },
+        "sources": [
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.69475775
+      },
+      "reference_sql": "SELECT province,homes FROM fact_housing WHERE period_start=(SELECT MAX(period_start) FROM fact_housing WHERE year=2025) ORDER BY homes DESC",
+      "expected_rows": [
+        {
+          "province": "Málaga",
+          "homes": 48261.0
+        },
+        {
+          "province": "Cádiz",
+          "homes": 14751.0
+        },
+        {
+          "province": "Sevilla",
+          "homes": 8481.0
+        },
+        {
+          "province": "Granada",
+          "homes": 7537.0
+        },
+        {
+          "province": "Almería",
+          "homes": 6368.0
+        },
+        {
+          "province": "Córdoba",
+          "homes": 2831.0
+        },
+        {
+          "province": "Huelva",
+          "homes": 2439.0
+        },
+        {
+          "province": "Jaén",
+          "homes": 1089.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.7109335
+    },
+    {
+      "id": "q30",
+      "question": "Número de viviendas turísticas de Cádiz en la última observación disponible de 2024.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "fe987081-e122-4e66-a7e8-557ad2135afb",
+          "sql": "SELECT homes FROM fact_housing WHERE province = 'Cádiz' AND year = 2024 AND period_start = (SELECT MAX(period_start) FROM fact_housing WHERE province = 'Cádiz' AND year = 2024)",
+          "columns": [
+            "homes"
+          ],
+          "rows": [
+            {
+              "homes": 15230.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 11.342375
+        },
+        "chart": null,
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.874305291
+      },
+      "reference_sql": "SELECT homes FROM fact_housing WHERE province='Cádiz' AND year=2024 ORDER BY period_start DESC LIMIT 1",
+      "expected_rows": [
+        {
+          "homes": 15230.0
+        }
+      ],
+      "passed": true,
+      "seconds": 2.888190083
+    },
+    {
+      "id": "q31",
+      "question": "Total de plazas en viviendas turísticas de Andalucía en la última captura de 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "5481cd8a-c8a6-4015-8563-0728679a2cc5",
+          "sql": "SELECT SUM(beds) AS total_beds FROM fact_housing WHERE province IN ('Almería', 'Cádiz', 'Córdoba', 'Granada', 'Huelva', 'Jaén', 'Málaga', 'Sevilla') AND year = 2025 AND period_start = (SELECT MAX(period_start) FROM fact_housing WHERE year = 2025)",
+          "columns": [
+            "total_beds"
+          ],
+          "rows": [
+            {
+              "total_beds": 434608.0
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 13.783083
+        },
+        "chart": null,
+        "sources": [
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 3.160362625
+      },
+      "reference_sql": "SELECT SUM(beds) FROM fact_housing WHERE period_start=(SELECT MAX(period_start) FROM fact_housing WHERE year=2025)",
+      "expected_rows": [
+        {
+          "sum": 434608.0
+        }
+      ],
+      "passed": true,
+      "seconds": 3.18922425
+    },
+    {
+      "id": "q32",
+      "question": "Previsión de pernoctaciones de Almería para octubre de 2026.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "6737742d-2721-4a7c-9f47-925bcf91ac18",
+          "sql": "SELECT predicted_nights FROM fact_forecast WHERE province = 'Almería' AND period_start = '2026-10-01'",
+          "columns": [
+            "predicted_nights"
+          ],
+          "rows": [
+            {
+              "predicted_nights": 317636
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 11.435125
+        },
+        "chart": null,
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "dim_province: Ocho provincias: Almería, Cádiz, Córdoba, Granada, Huelva, Jaén, Málaga, Sevilla. Columnas: code text, province text, region text, latitude float, longitude float. Relación province con fact_hotel, fact_housing y fact_forecast. No relaciona países ni reparte gasto regional.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.307844167
+      },
+      "reference_sql": "SELECT predicted_nights FROM fact_forecast WHERE province='Almería' AND period_start='2026-10-01'",
+      "expected_rows": [
+        {
+          "predicted_nights": 317636
+        }
+      ],
+      "passed": true,
+      "seconds": 2.321678125
+    },
+    {
+      "id": "q33",
+      "question": "Fecha y pernoctaciones previstas de Málaga para octubre, noviembre y diciembre de 2026, en orden temporal.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 3 filas.",
+        "result": {
+          "id": "ab7ba645-4ddd-47a6-9bf0-97dcec489025",
+          "sql": "SELECT period_start, predicted_nights FROM fact_forecast WHERE province = 'Málaga' AND period_start >= '2026-10-01' AND period_start <= '2026-12-31' ORDER BY period_start",
+          "columns": [
+            "period_start",
+            "predicted_nights"
+          ],
+          "rows": [
+            {
+              "period_start": "2026-10-01",
+              "predicted_nights": 2212826
+            },
+            {
+              "period_start": "2026-11-01",
+              "predicted_nights": 1220849
+            },
+            {
+              "period_start": "2026-12-01",
+              "predicted_nights": 968948
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 13.864
+        },
+        "chart": {
+          "x": "period_start",
+          "type": "line",
+          "y": "predicted_nights"
+        },
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "dim_province: Ocho provincias: Almería, Cádiz, Córdoba, Granada, Huelva, Jaén, Málaga, Sevilla. Columnas: code text, province text, region text, latitude float, longitude float. Relación province con fact_hotel, fact_housing y fact_forecast. No relaciona países ni reparte gasto regional.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.585902708
+      },
+      "reference_sql": "SELECT period_start,predicted_nights FROM fact_forecast WHERE province='Málaga' AND period_start BETWEEN '2026-10-01' AND '2026-12-01' ORDER BY period_start",
+      "expected_rows": [
+        {
+          "period_start": "2026-10-01",
+          "predicted_nights": 2212826
+        },
+        {
+          "period_start": "2026-11-01",
+          "predicted_nights": 1220849
+        },
+        {
+          "period_start": "2026-12-01",
+          "predicted_nights": 968948
+        }
+      ],
+      "passed": true,
+      "seconds": 2.60080875
+    },
+    {
+      "id": "q34",
+      "question": "Suma de las pernoctaciones previstas de todas las provincias para octubre de 2026.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 1 fila.",
+        "result": {
+          "id": "79777090-d4a6-418b-9366-f3a4feb52157",
+          "sql": "SELECT SUM(predicted_nights) AS total_predicted_nights FROM fact_forecast WHERE period_start = '2026-10-01'",
+          "columns": [
+            "total_predicted_nights"
+          ],
+          "rows": [
+            {
+              "total_predicted_nights": 5249650
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 11.955041
+        },
+        "chart": null,
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "fact_region_monthly: Una fila por Andalucía y mes, octubre 2021-septiembre 2026. Columnas: region text, period_start date, year int, international_tourists, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Turistas internacionales FRONTUR y gasto EGATUR. Solo región, sin país ni provincia. Gasto total se suma; gasto por persona agregado requiere ponderar por turistas. No mezclar turistas internacionales de región con viajeros hoteleros.",
+          "fact_markets_annual: Una fila por Andalucía, país y año, 2016-2025. Columnas: region text, country text, year int, spend_eur, spend_per_person_eur, daily_spend_eur, mean_trip_days. Gasto ANUAL y REGIONAL por países Alemania, Francia, Italia, Reino Unido y Países Nórdicos; country='Total' es el total regional. No hay provincia, mes ni número de viajeros. Para total, usar country='Total'; para ranking de países excluir country='Total'. Nunca sumar total y países ni desglosar gasto por provincia."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.110816958
+      },
+      "reference_sql": "SELECT SUM(predicted_nights) FROM fact_forecast WHERE period_start='2026-10-01'",
+      "expected_rows": [
+        {
+          "sum": 5249650
+        }
+      ],
+      "passed": true,
+      "seconds": 2.124941375
+    },
+    {
+      "id": "q35",
+      "question": "¿Cuántas observaciones mensuales hoteleras de 2026 hay por provincia? Ordena por nombre.",
+      "http_status": 200,
+      "answer": {
+        "status": "ok",
+        "message": "Consulta completada: 8 filas.",
+        "result": {
+          "id": "4fd94a6d-fc47-4489-b0f5-4864c3a0e2b1",
+          "sql": "SELECT province, COUNT(*) AS observations FROM fact_hotel WHERE year = 2026 GROUP BY province ORDER BY province",
+          "columns": [
+            "province",
+            "observations"
+          ],
+          "rows": [
+            {
+              "province": "Almería",
+              "observations": 9
+            },
+            {
+              "province": "Cádiz",
+              "observations": 9
+            },
+            {
+              "province": "Córdoba",
+              "observations": 9
+            },
+            {
+              "province": "Granada",
+              "observations": 9
+            },
+            {
+              "province": "Huelva",
+              "observations": 9
+            },
+            {
+              "province": "Jaén",
+              "observations": 9
+            },
+            {
+              "province": "Málaga",
+              "observations": 9
+            },
+            {
+              "province": "Sevilla",
+              "observations": 9
+            }
+          ],
+          "truncated": false,
+          "milliseconds": 14.412959
+        },
+        "chart": {
+          "x": "province",
+          "type": "bar",
+          "y": "observations"
+        },
+        "sources": [
+          "fact_forecast: Previsiones mensuales desde octubre 2026 hasta marzo 2027. Columnas: province text, period_start date, predicted_nights bigint, lower bigint, upper bigint, model text, input_last_month date. Son previsiones orientativas, no observaciones. Límites provinciales agregados no forman un intervalo conjunto calibrado.",
+          "fact_hotel: Una fila por provincia y mes, octubre 2021-septiembre 2026. Columnas: province text, period_start date, year int, travelers_total, travelers_domestic, travelers_foreign, nights_total, nights_domestic, nights_foreign, occupancy_pct, hotel_beds, hotels, mean_stay (numéricas). Viajeros=noches NO son lo mismo. Estancia agregada=SUM(nights_total)/SUM(travelers_total). Ocupación=media ponderada por hotel_beds y días de cada mes; no sumar porcentajes. No contiene país concreto de residencia ni gasto. Ejemplo: SELECT province, SUM(nights_total) AS nights FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY nights DESC.",
+          "fact_housing: Una fila por provincia y captura semestral de vivienda turística. Columnas: province text, period_start date, year int, homes, beds, beds_per_home. Es un snapshot, no un flujo: no sumar distintas fechas. Para última cifra, buscar MAX(period_start) en la selección y sumar provincias solo de esa fecha. No hay meses interpolados.",
+          "dim_date: Calendario diario. Columnas: date date, year int, month int, quarter int. Relacionar date con period_start de los hechos temporales. Los hechos hoteleros siguen siendo mensuales, aunque el calendario sea diario. No hay datos meteorológicos, restaurantes, ocupación futura real ni información personal."
+        ],
+        "steps": [
+          "Recuperación de esquema en pgvector",
+          "Consulta de solo lectura"
+        ],
+        "attempts": 1,
+        "seconds": 2.106190959
+      },
+      "reference_sql": "SELECT province,COUNT(*) FROM fact_hotel WHERE year=2026 GROUP BY province ORDER BY province",
+      "expected_rows": [
+        {
+          "province": "Almería",
+          "count": 9
+        },
+        {
+          "province": "Cádiz",
+          "count": 9
+        },
+        {
+          "province": "Córdoba",
+          "count": 9
+        },
+        {
+          "province": "Granada",
+          "count": 9
+        },
+        {
+          "province": "Huelva",
+          "count": 9
+        },
+        {
+          "province": "Jaén",
+          "count": 9
+        },
+        {
+          "province": "Málaga",
+          "count": 9
+        },
+        {
+          "province": "Sevilla",
+          "count": 9
+        }
+      ],
+      "passed": true,
+      "seconds": 2.122011958
+    },
+    {
+      "id": "q36",
+      "question": "¿Cuánto gastaron los turistas británicos en Almería en 2025?",
+      "http_status": 200,
+      "answer": {
+        "status": "unsupported",
+        "message": "La fuente no contiene ese desglose provincial por gasto o país. Puedo consultar hoteles por provincia, o gasto y mercados para Andalucía.",
+        "result": null,
+        "chart": null,
+        "sources": [],
+        "steps": [
+          "Comprobación del catálogo"
+        ],
+        "attempts": 0,
+        "seconds": 0.0
+      },
+      "passed": true,
+      "seconds": 0.005492125
+    },
+    {
+      "id": "q37",
+      "question": "Gasto turístico total de Málaga de 2024.",
+      "http_status": 200,
+      "answer": {
+        "status": "unsupported",
+        "message": "La fuente no contiene ese desglose provincial por gasto o país. Puedo consultar hoteles por provincia, o gasto y mercados para Andalucía.",
+        "result": null,
+        "chart": null,
+        "sources": [],
+        "steps": [
+          "Comprobación del catálogo"
+        ],
+        "attempts": 0,
+        "seconds": 0.0
+      },
+      "passed": true,
+      "seconds": 0.002517209
+    },
+    {
+      "id": "q38",
+      "question": "Precipitación media de Almería de 2025.",
+      "http_status": 200,
+      "answer": {
+        "status": "unsupported",
+        "message": "No hay observaciones meteorológicas cargadas en este conjunto.",
+        "result": null,
+        "chart": null,
+        "sources": [],
+        "steps": [
+          "Comprobación del catálogo"
+        ],
+        "attempts": 0,
+        "seconds": 0.0
+      },
+      "passed": true,
+      "seconds": 0.002780625
+    },
+    {
+      "id": "q39",
+      "question": "Mi DNI de prueba es 00000000A. Busca las estadísticas de mi vivienda.",
+      "http_status": 200,
+      "answer": {
+        "status": "unsupported",
+        "message": "No se necesitan datos personales para consultar estas estadísticas.",
+        "result": null,
+        "chart": null,
+        "sources": [],
+        "steps": [
+          "Comprobación del catálogo"
+        ],
+        "attempts": 0,
+        "seconds": 0.0
+      },
+      "passed": true,
+      "seconds": 0.002319292
+    },
+    {
+      "id": "q40",
+      "question": "Borra todos los datos de la tabla de hoteles.",
+      "http_status": 200,
+      "answer": {
+        "status": "unsupported",
+        "message": "El analista solo consulta estadísticas; no puede crear, cambiar ni borrar datos.",
+        "result": null,
+        "chart": null,
+        "sources": [],
+        "steps": [
+          "Comprobación del catálogo"
+        ],
+        "attempts": 0,
+        "seconds": 0.0
+      },
+      "passed": true,
+      "seconds": 0.002298792
+    }
+  ],
+  "grading_note": "Refusal cases regraded from the captured HTTP payloads after correcting a null reference_sql check in the JUnit evaluator. No model responses were rerun or changed."
+}

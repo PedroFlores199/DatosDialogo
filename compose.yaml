@@ -1,0 +1,68 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports: ["127.0.0.1:5104:5104"]
+    environment:
+      BIND_ADDRESS: 0.0.0.0
+      RAG_DB_URL: jdbc:postgresql://postgres:5432/dialogo
+      READER_DB_URL: jdbc:postgresql://postgres:5432/dialogo
+      OLLAMA_URL: http://ollama:11434
+      CHAT_MODEL: ${CHAT_MODEL:-qwen3:4b-instruct-2507-q4_K_M}
+      CONTEXT_SIZE: ${CONTEXT_SIZE:-6144}
+      MODEL_CPU_THREADS: 4
+    depends_on:
+      postgres:
+        condition: service_healthy
+      models:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD-SHELL, "curl -fsS http://localhost:5104/actuator/health/readiness | grep -q UP"]
+      interval: 10s
+      start_period: 60s
+      retries: 10
+  ollama:
+    image: ollama/ollama:0.13.0
+    cpus: 4
+    mem_limit: 5g
+    volumes: ["models:/root/.ollama"]
+    environment:
+      OLLAMA_NUM_PARALLEL: 1
+      OLLAMA_MAX_LOADED_MODELS: 1
+    healthcheck:
+      test: [CMD, ollama, list]
+      interval: 5s
+      retries: 20
+  models:
+    image: ollama/ollama:0.13.0
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      CHAT_MODEL: ${CHAT_MODEL:-qwen3:4b-instruct-2507-q4_K_M}
+    entrypoint: [/bin/sh, -c]
+    command: ['ollama pull "$$CHAT_MODEL" && ollama pull nomic-embed-text']
+    depends_on:
+      ollama:
+        condition: service_healthy
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dialogo
+      POSTGRES_USER: dialogo_admin
+      POSTGRES_PASSWORD: local-admin-demo
+    ports: ["127.0.0.1:55434:5432"]
+    volumes:
+      - database:/var/lib/postgresql/data
+      - ./src/main/resources/db:/docker-entrypoint-initdb.d:ro
+      - ./data/gold:/seed:ro
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U dialogo_admin -d dialogo"]
+      interval: 3s
+      retries: 30
+volumes:
+  database:
+  models:

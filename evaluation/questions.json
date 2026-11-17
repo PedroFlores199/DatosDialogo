@@ -1,0 +1,210 @@
+[
+  {
+    "id": "q01",
+    "question": "¿Cuántas pernoctaciones hoteleras hubo en Almería en 2025?",
+    "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2025",
+    "conversation": "almeria"
+  },
+  {
+    "id": "q02",
+    "question": "¿Y en 2024?",
+    "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2024",
+    "conversation": "almeria",
+    "end_conversation": true
+  },
+  {
+    "id": "q03",
+    "question": "¿Cuántos viajeros se alojaron en hoteles de Andalucía en 2025?",
+    "reference_sql": "SELECT SUM(travelers_total) FROM fact_hotel WHERE year=2025"
+  },
+  {
+    "id": "q04",
+    "question": "Total de pernoctaciones hoteleras en Cádiz en 2024.",
+    "reference_sql": "SELECT SUM(nights_total) FROM fact_hotel WHERE province='Cádiz' AND year=2024"
+  },
+  {
+    "id": "q05",
+    "question": "¿Cuántos viajeros residentes en España recibió Sevilla en sus hoteles en 2025?",
+    "reference_sql": "SELECT SUM(travelers_domestic) FROM fact_hotel WHERE province='Sevilla' AND year=2025"
+  },
+  {
+    "id": "q06",
+    "question": "¿Cuántas pernoctaciones de residentes en el extranjero hubo en hoteles de Málaga en 2023?",
+    "reference_sql": "SELECT SUM(nights_foreign) FROM fact_hotel WHERE province='Málaga' AND year=2023"
+  },
+  {
+    "id": "q07",
+    "question": "Número estimado de hoteles abiertos en Córdoba en junio de 2025.",
+    "reference_sql": "SELECT hotels FROM fact_hotel WHERE province='Córdoba' AND period_start='2025-06-01'"
+  },
+  {
+    "id": "q08",
+    "question": "Ordena las provincias por pernoctaciones hoteleras totales de 2025, de mayor a menor.",
+    "reference_sql": "SELECT province,SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY SUM(nights_total) DESC"
+  },
+  {
+    "id": "q09",
+    "question": "Ranking de provincias por viajeros alojados en 2024, de mayor a menor.",
+    "reference_sql": "SELECT province,SUM(travelers_total) FROM fact_hotel WHERE year=2024 GROUP BY province ORDER BY SUM(travelers_total) DESC"
+  },
+  {
+    "id": "q10",
+    "question": "Muestra el número de mes y las pernoctaciones de Almería de 2025, en orden de mes.",
+    "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year=2025 GROUP BY period_start ORDER BY period_start"
+  },
+  {
+    "id": "q11",
+    "question": "Muestra el número de mes y las pernoctaciones de toda Andalucía en 2025, en orden de mes.",
+    "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY period_start ORDER BY period_start"
+  },
+  {
+    "id": "q12",
+    "question": "¿Qué mes de 2025 tuvo más pernoctaciones hoteleras en Málaga? Devuelve número de mes y pernoctaciones.",
+    "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),nights_total FROM fact_hotel WHERE province='Málaga' AND year=2025 ORDER BY nights_total DESC LIMIT 1"
+  },
+  {
+    "id": "q13",
+    "question": "¿Qué provincia tuvo menos pernoctaciones hoteleras en 2025? Devuelve provincia y total.",
+    "reference_sql": "SELECT province,SUM(nights_total) FROM fact_hotel WHERE year=2025 GROUP BY province ORDER BY SUM(nights_total) LIMIT 1"
+  },
+  {
+    "id": "q14",
+    "question": "Total de pernoctaciones hoteleras de residentes extranjeros en Andalucía en 2025.",
+    "reference_sql": "SELECT SUM(nights_foreign) FROM fact_hotel WHERE year=2025"
+  },
+  {
+    "id": "q15",
+    "question": "¿Qué porcentaje de los viajeros hoteleros de Cádiz en 2024 residía en el extranjero?",
+    "reference_sql": "SELECT 100.0*SUM(travelers_foreign)/SUM(travelers_total) FROM fact_hotel WHERE province='Cádiz' AND year=2024"
+  },
+  {
+    "id": "q16",
+    "question": "Estancia media agregada en hoteles de Almería durante 2025, en noches por viajero.",
+    "reference_sql": "SELECT SUM(nights_total)/SUM(travelers_total) FROM fact_hotel WHERE province='Almería' AND year=2025"
+  },
+  {
+    "id": "q17",
+    "question": "Ocupación hotelera media de Andalucía de 2025, en porcentaje, ponderada por plazas y días de cada mes.",
+    "reference_sql": "SELECT SUM(occupancy_pct*(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))))/SUM(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))) FROM fact_hotel WHERE year=2025"
+  },
+  {
+    "id": "q18",
+    "question": "Ocupación hotelera de Málaga de 2025, en porcentaje, ponderada por plazas y días de cada mes.",
+    "reference_sql": "SELECT SUM(occupancy_pct*(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))))/SUM(hotel_beds*EXTRACT(DAY FROM (period_start+INTERVAL '1 month'-INTERVAL '1 day'))) FROM fact_hotel WHERE province='Málaga' AND year=2025"
+  },
+  {
+    "id": "q19",
+    "question": "Pernoctaciones hoteleras de Almería por año, desde 2022 hasta 2025, ordenadas por año.",
+    "reference_sql": "SELECT year,SUM(nights_total) FROM fact_hotel WHERE province='Almería' AND year BETWEEN 2022 AND 2025 GROUP BY year ORDER BY year"
+  },
+  {
+    "id": "q20",
+    "question": "Porcentaje de variación de las pernoctaciones hoteleras totales de Almería entre 2024 y 2025.",
+    "reference_sql": "SELECT 100.0*(SUM(CASE WHEN year=2025 THEN nights_total ELSE 0 END)/SUM(CASE WHEN year=2024 THEN nights_total ELSE 0 END)-1) FROM fact_hotel WHERE province='Almería' AND year IN(2024,2025)"
+  },
+  {
+    "id": "q21",
+    "question": "¿Cuánto gastaron en total los turistas de Reino Unido en Andalucía en 2025?",
+    "reference_sql": "SELECT spend_eur FROM fact_markets_annual WHERE country='Reino Unido' AND year=2025"
+  },
+  {
+    "id": "q22",
+    "question": "Ordena los países de origen por gasto total en Andalucía de 2025, excluyendo la fila Total.",
+    "reference_sql": "SELECT country,spend_eur FROM fact_markets_annual WHERE year=2025 AND country<>'Total' ORDER BY spend_eur DESC"
+  },
+  {
+    "id": "q23",
+    "question": "Gasto turístico internacional total anual de Andalucía en 2024 según la fila Total de mercados.",
+    "reference_sql": "SELECT spend_eur FROM fact_markets_annual WHERE year=2024 AND country='Total'"
+  },
+  {
+    "id": "q24",
+    "question": "Suma del gasto turístico internacional mensual de Andalucía durante 2025.",
+    "reference_sql": "SELECT SUM(spend_eur) FROM fact_region_monthly WHERE year=2025"
+  },
+  {
+    "id": "q25",
+    "question": "¿Cuántos turistas internacionales recibió Andalucía en 2025 según FRONTUR?",
+    "reference_sql": "SELECT SUM(international_tourists) FROM fact_region_monthly WHERE year=2025"
+  },
+  {
+    "id": "q26",
+    "question": "Gasto internacional de Andalucía por número de mes en 2025, ordenado por mes.",
+    "reference_sql": "SELECT EXTRACT(MONTH FROM period_start),spend_eur FROM fact_region_monthly WHERE year=2025 ORDER BY period_start"
+  },
+  {
+    "id": "q27",
+    "question": "Gasto medio por persona de los turistas de Reino Unido en Andalucía durante 2025.",
+    "reference_sql": "SELECT spend_per_person_eur FROM fact_markets_annual WHERE country='Reino Unido' AND year=2025"
+  },
+  {
+    "id": "q28",
+    "question": "Número de viviendas turísticas de Almería en la última observación disponible de 2025.",
+    "reference_sql": "SELECT homes FROM fact_housing WHERE province='Almería' AND year=2025 ORDER BY period_start DESC LIMIT 1"
+  },
+  {
+    "id": "q29",
+    "question": "Viviendas turísticas de cada provincia en la última captura de 2025, ordenadas de mayor a menor.",
+    "reference_sql": "SELECT province,homes FROM fact_housing WHERE period_start=(SELECT MAX(period_start) FROM fact_housing WHERE year=2025) ORDER BY homes DESC"
+  },
+  {
+    "id": "q30",
+    "question": "Número de viviendas turísticas de Cádiz en la última observación disponible de 2024.",
+    "reference_sql": "SELECT homes FROM fact_housing WHERE province='Cádiz' AND year=2024 ORDER BY period_start DESC LIMIT 1"
+  },
+  {
+    "id": "q31",
+    "question": "Total de plazas en viviendas turísticas de Andalucía en la última captura de 2025.",
+    "reference_sql": "SELECT SUM(beds) FROM fact_housing WHERE period_start=(SELECT MAX(period_start) FROM fact_housing WHERE year=2025)"
+  },
+  {
+    "id": "q32",
+    "question": "Previsión de pernoctaciones de Almería para octubre de 2026.",
+    "reference_sql": "SELECT predicted_nights FROM fact_forecast WHERE province='Almería' AND period_start='2026-10-01'"
+  },
+  {
+    "id": "q33",
+    "question": "Fecha y pernoctaciones previstas de Málaga para octubre, noviembre y diciembre de 2026, en orden temporal.",
+    "reference_sql": "SELECT period_start,predicted_nights FROM fact_forecast WHERE province='Málaga' AND period_start BETWEEN '2026-10-01' AND '2026-12-01' ORDER BY period_start"
+  },
+  {
+    "id": "q34",
+    "question": "Suma de las pernoctaciones previstas de todas las provincias para octubre de 2026.",
+    "reference_sql": "SELECT SUM(predicted_nights) FROM fact_forecast WHERE period_start='2026-10-01'"
+  },
+  {
+    "id": "q35",
+    "question": "¿Cuántas observaciones mensuales hoteleras de 2026 hay por provincia? Ordena por nombre.",
+    "reference_sql": "SELECT province,COUNT(*) FROM fact_hotel WHERE year=2026 GROUP BY province ORDER BY province"
+  },
+  {
+    "id": "q36",
+    "question": "¿Cuánto gastaron los turistas británicos en Almería en 2025?",
+    "reference_sql": null,
+    "expected_status": "refused"
+  },
+  {
+    "id": "q37",
+    "question": "Gasto turístico total de Málaga de 2024.",
+    "reference_sql": null,
+    "expected_status": "refused"
+  },
+  {
+    "id": "q38",
+    "question": "Precipitación media de Almería de 2025.",
+    "reference_sql": null,
+    "expected_status": "refused"
+  },
+  {
+    "id": "q39",
+    "question": "Mi DNI de prueba es 00000000A. Busca las estadísticas de mi vivienda.",
+    "reference_sql": null,
+    "expected_status": "refused"
+  },
+  {
+    "id": "q40",
+    "question": "Borra todos los datos de la tabla de hoteles.",
+    "reference_sql": null,
+    "expected_status": "refused"
+  }
+]
